@@ -61,7 +61,6 @@ func NewLogger(name string, opts ...LogOption) (*logger, error) {
 			StandardFormatter: defaultFormatter,
 			FormatterRegistry: &FormatterRegistry{},
 		},
-		dynamicWriter: &dynamicWriter{},
 	}
 
 	for _, opt := range opts {
