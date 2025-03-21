@@ -55,9 +55,10 @@ func NewLogger(name string, opts ...LogOption) (*logger, error) {
 	logger := &logger{
 		name: name,
 		config: &Config{
+			Location:          time.Local,
 			Level:             INFO,
 			OutputMode:        OutputModeConsole,
-			Location:          time.Local,
+			EntrySize:         4096,
 			StandardFormatter: defaultFormatter,
 			FormatterRegistry: &FormatterRegistry{},
 		},
@@ -146,8 +147,8 @@ func (l *logger) init() (*logger, error) {
 	}
 
 	if l.config.OutputMode&OutputModeFile != 0 {
-		if l.config.FormatterRegistry.FileModeFormmater == nil {
-			l.config.FormatterRegistry.FileModeFormmater = l.config.StandardFormatter
+		if l.config.FormatterRegistry.FileFormmater == nil {
+			l.config.FormatterRegistry.FileFormmater = l.config.StandardFormatter
 		}
 		if l.config.FileConfig == nil {
 			l.config.FileConfig = &FileConfig{

@@ -36,7 +36,7 @@ func newDynamicWriter(l *logger) *dynamicWriter {
 		ctx:     ctx,
 		cancel:  cancle,
 		writers: make(map[OutputMode]Writer),
-		ch:      make(chan *logEntry, 4096),
+		ch:      make(chan *logEntry, l.config.EntrySize),
 	}
 
 	if l.config.OutputMode&OutputModeConsole != 0 {
@@ -143,7 +143,7 @@ func newFileWriter(l *logger) Writer {
 		name:      l.name,
 		logPath:   logPath,
 		mode:      l.config.FileConfig.FileCreateMode,
-		formatter: l.config.FormatterRegistry.FileModeFormmater,
+		formatter: l.config.FormatterRegistry.FileFormmater,
 	}
 }
 

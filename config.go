@@ -7,9 +7,9 @@ import (
 )
 
 type FormatterRegistry struct {
-	ConsoleFormatter  Formatter
-	FileModeFormmater Formatter
-	RemoteFormatter   Formatter
+	ConsoleFormatter Formatter
+	FileFormmater    Formatter
+	RemoteFormatter  Formatter
 }
 type RemoteConfig struct {
 	EndPoint  string
@@ -22,6 +22,7 @@ type Config struct {
 	Location          *time.Location
 	Level             LogLevel
 	OutputMode        OutputMode
+	EntrySize         int
 	FileConfig        *FileConfig
 	RemoteConfig      *RemoteConfig
 	StandardFormatter Formatter
@@ -64,8 +65,8 @@ func convertOptions(config *Config) []LogOption {
 	if config.FormatterRegistry.ConsoleFormatter != nil {
 		opts = append(opts, WithConsoleFormatter(config.FormatterRegistry.ConsoleFormatter))
 	}
-	if config.FormatterRegistry.FileModeFormmater != nil {
-		opts = append(opts, WithFileModeFormatter(config.FormatterRegistry.FileModeFormmater))
+	if config.FormatterRegistry.FileFormmater != nil {
+		opts = append(opts, WithFileModeFormatter(config.FormatterRegistry.FileFormmater))
 	}
 	if config.FormatterRegistry.RemoteFormatter != nil {
 		opts = append(opts, WithRemoteFormatter(config.FormatterRegistry.RemoteFormatter))
