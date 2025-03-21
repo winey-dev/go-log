@@ -40,7 +40,7 @@ func newDynamicWriter(l *logger) *dynamicWriter {
 	}
 
 	if l.config.OutputMode&OutputModeConsole != 0 {
-		writer.writers[OutputModeFile] = newConsoleWriter(l)
+		writer.writers[OutputModeConsole] = newConsoleWriter(l)
 	}
 
 	if l.config.OutputMode&OutputModeFile != 0 {
@@ -71,6 +71,13 @@ func (d *dynamicWriter) run() {
 		}
 	}()
 }
+
+func (d *dynamicWriter) writer(t time.Time, level LogLevel, format string, args ...any) {
+	for _, writer := range d.writers {
+		_, _ = writer.Write(t, level, format, args...)
+	}
+}
+
 func (d *dynamicWriter) close() {
 	d.cancel()
 	d.wg.Wait()
@@ -86,12 +93,6 @@ func (d *dynamicWriter) close() {
 		}
 	}
 
-}
-
-func (d *dynamicWriter) writer(t time.Time, level LogLevel, format string, args ...any) {
-	for _, writer := range d.writers {
-		_, _ = writer.Write(t, level, format, args...)
-	}
 }
 
 type consoleWriter struct {
@@ -148,9 +149,9 @@ func newFileWriter(l *logger) Writer {
 
 func (f *fileWriter) generatedFileName(t time.Time) string {
 	if f.mode == DAILYMODE {
-		return fmt.Sprintf("%s/%s_%s", f.logPath, f.name, t.Format(time.DateOnly))
+		return fmt.Sprintf("%s/%s.%s.log", f.logPath, f.name, t.Format(time.DateOnly))
 	}
-	return fmt.Sprintf("%s/%s_%s", f.logPath, f.name, t.Format("2006-01-02-15"))
+	return fmt.Sprintf("%s/%s.%s.log", f.logPath, f.name, t.Format("2006-01-02-15"))
 }
 
 func (f *fileWriter) Write(t time.Time, level LogLevel, format string, args ...any) (n int, err error) {

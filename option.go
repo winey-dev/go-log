@@ -43,9 +43,12 @@ func WithFileMode(fileName, logPath string, mode FileCreateMode) LogOption {
 	return func(l *logger) {
 		l.mtx.Lock()
 		defer l.mtx.Unlock()
+		if l.config.FileConfig == nil {
+			l.config.FileConfig = &FileConfig{}
+		}
 		l.config.FileConfig.FileName = fileName
-		l.config.FileConfig.FileCreateMode = mode
 		l.config.FileConfig.LogPath = logPath
+		l.config.FileConfig.FileCreateMode = mode
 		l.config.OutputMode |= OutputModeFile
 	}
 }
@@ -54,6 +57,9 @@ func WithRemoteMode(endpoint, method string, header http.Header, transport *http
 	return func(l *logger) {
 		l.mtx.Lock()
 		defer l.mtx.Unlock()
+		if l.config.RemoteConfig == nil {
+			l.config.RemoteConfig = &RemoteConfig{}
+		}
 		l.config.RemoteConfig.Method = method
 		l.config.RemoteConfig.EndPoint = endpoint
 		l.config.RemoteConfig.Header = header
