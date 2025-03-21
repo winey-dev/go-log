@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// LogOption is a function that sets the logger configuration.
 type LogOption func(*logger)
 
 // globalLogger is used in the option. It is set when the WithGlobal option is executed.

@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Logger is the interface that wraps the basic logging methods.
 type Logger interface {
 	Debug(format string, args ...any)
 	Info(format string, args ...any)
@@ -31,26 +32,30 @@ const (
 	ERROR          // 4
 )
 
-var loglevelNames = map[LogLevel]string{
+var LoglevelNames = map[LogLevel]string{
 	DEBUG: "DEBUG",
 	INFO:  "INFO",
 	WARN:  "WARN",
 	ERROR: "ERROR",
 }
-var _ = loglevelNames
 
 type OutputMode uint8
 
 const (
+	// OutputModeConsole is the output mode for the console.
 	OutputModeConsole OutputMode = 1 << iota
-	OutputModeFile               // 2
-	OutputModeRemote             // 4
+	// OutputModeFile is the output mode for the file.
+	OutputModeFile // 2
+	// OutputModeRemote is the output mode for the remote.
+	OutputModeRemote // 4
 )
 
+// NewLoggerFormConfig creates a new logger from the configuration.
 func NewLoggerFormConfig(name string, config *Config) (*logger, error) {
 	return NewLogger(name, convertOptions(config)...)
 }
 
+// NewLogger creates a new logger with the options.
 func NewLogger(name string, opts ...LogOption) (*logger, error) {
 	logger := &logger{
 		name: name,
@@ -71,19 +76,27 @@ func NewLogger(name string, opts ...LogOption) (*logger, error) {
 	return logger.init()
 }
 
+// Debug logs a message with the DEBUG level.
 func (l *logger) Debug(format string, args ...any) {
 	l.logf(DEBUG, format, args...)
 }
+
+// Info logs a message with the INFO level.
 func (l *logger) Info(format string, args ...any) {
 	l.logf(INFO, format, args...)
 }
+
+// Warn logs a message with the WARN level.
 func (l *logger) Warn(format string, args ...any) {
 	l.logf(WARN, format, args...)
 }
+
+// Error logs a message with the ERROR level.
 func (l *logger) Error(format string, args ...any) {
 	l.logf(ERROR, format, args...)
 }
 
+// logf logs a message with the level and format.
 func (l *logger) logf(level LogLevel, format string, args ...any) {
 	if level < l.config.Level {
 		return
@@ -98,12 +111,14 @@ func (l *logger) logf(level LogLevel, format string, args ...any) {
 	l.dynamicWriter.ch <- entry
 }
 
+// SetLogLevel sets the log level of the logger.
 func (l *logger) SetLogLevel(level LogLevel) {
 	l.mtx.Lock()
 	defer l.mtx.Unlock()
 	l.config.Level = level
 }
 
+// Debug logs a message with the DEBUG level. It is a wrapper for the global logger.
 func Debug(format string, args ...any) {
 	if globalLogger == nil {
 		return
@@ -111,12 +126,15 @@ func Debug(format string, args ...any) {
 	globalLogger.Debug(format, args...)
 }
 
+// Info logs a message with the INFO level. It is a wrapper for the global logger.
 func Info(format string, args ...any) {
 	if globalLogger == nil {
 		return
 	}
 	globalLogger.Info(format, args...)
 }
+
+// Warn logs a message with the WARN level. It is a wrapper for the global logger.
 func Warn(format string, args ...any) {
 	if globalLogger == nil {
 		return
@@ -124,6 +142,7 @@ func Warn(format string, args ...any) {
 	globalLogger.Warn(format, args...)
 }
 
+// Error logs a message with the ERROR level. It is a wrapper for the global logger.
 func Error(format string, args ...any) {
 	if globalLogger == nil {
 		return
@@ -131,6 +150,7 @@ func Error(format string, args ...any) {
 	globalLogger.Error(format, args...)
 }
 
+// SetLogLevel sets the log level of the global logger.
 func SetLogLevel(level LogLevel) {
 	if globalLogger == nil {
 		return
@@ -182,6 +202,8 @@ func (l *logger) init() (*logger, error) {
 	return l, nil
 }
 
+// Close closes the logger.
+// It ensures that all remaining log entries in the channel are processed before shutting down.
 func (l *logger) Close() {
 	l.dynamicWriter.close()
 }

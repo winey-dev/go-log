@@ -47,6 +47,9 @@ func convertOptions(config *Config) []LogOption {
 	if config.Level != 0 {
 		opts = append(opts, WithLevel(config.Level))
 	}
+	if config.EntrySize != 0 {
+		opts = append(opts, WithEntrySize(config.EntrySize))
+	}
 	if config.OutputMode != 0 {
 		opts = append(opts, withOutputMode(config.OutputMode))
 	}

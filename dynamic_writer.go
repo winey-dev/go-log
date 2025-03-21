@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+// Writer is an interface that writes log entries to a specific output.
+// The Write method is called by the logger to write log entries.
 type Writer interface {
 	Write(t time.Time, level LogLevel, format string, args ...any) (n int, err error)
 }
@@ -202,7 +204,7 @@ func (r *remoteWriter) Write(t time.Time, level LogLevel, format string, args ..
 
 	var log = &remoteLog{
 		Time:    t,
-		Level:   loglevelNames[level],
+		Level:   LoglevelNames[level],
 		Message: fmt.Sprintf(format, args...),
 	}
 
