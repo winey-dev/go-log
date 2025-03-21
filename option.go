@@ -68,6 +68,15 @@ func WithRemoteMode(endpoint, method string, header http.Header, transport *http
 	}
 }
 
+func WithConsoleModeOff() LogOption {
+	return func(l *logger) {
+		l.mtx.Lock()
+		defer l.mtx.Unlock()
+		l.config.OutputMode &= ^OutputModeConsole
+
+	}
+}
+
 func WithLocation(location *time.Location) LogOption {
 	return func(l *logger) {
 		l.mtx.Lock()
