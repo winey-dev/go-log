@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -10,7 +11,14 @@ import (
 type Formatter func(t time.Time, level LogLevel, format string, args ...any) string
 
 func defaultFormatter(t time.Time, level LogLevel, format string, args ...any) string {
-	return fmt.Sprintf("%s [%5s] %s", t.In(time.Local).Format(time.TimeOnly+".000"), LoglevelNames[level], fmt.Sprintf(format, args...))
+	var logStr strings.Builder
+	logStr.WriteString(t.Format(time.TimeOnly + ".000"))
+	logStr.WriteString(" [")
+	logStr.WriteString(LoglevelNames[level])
+	logStr.WriteString("] ")
+	fmt.Fprintf(&logStr, format, args...)
+	return logStr.String()
+	// return fmt.Sprintf("%s [%5s] %s", t.In(time.Local).Format(time.TimeOnly+".000"), LoglevelNames[level], fmt.Sprintf(format, args...))
 }
 
 // custom formatter is a function that formats log entries.

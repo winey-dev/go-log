@@ -1,6 +1,7 @@
 package log
 
 import (
+	"io"
 	"net/http"
 	"time"
 )
@@ -55,6 +56,17 @@ func WithConsoleMode() LogOption {
 		l.mtx.Lock()
 		defer l.mtx.Unlock()
 		l.config.OutputMode |= OutputModeConsole
+	}
+}
+
+func WithConsoleOutPut(w io.Writer) LogOption {
+	return func(l *logger) {
+		l.mtx.Lock()
+		defer l.mtx.Unlock()
+		if l.config.ConsoleConfig == nil {
+			l.config.ConsoleConfig = &ConsoleConfig{}
+		}
+		l.config.ConsoleConfig.Writer = w
 	}
 }
 

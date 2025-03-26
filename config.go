@@ -1,28 +1,18 @@
 package log
 
 import (
+	"io"
 	"net/http"
 
 	"time"
 )
-
-type FormatterRegistry struct {
-	ConsoleFormatter Formatter
-	FileFormmater    Formatter
-	RemoteFormatter  Formatter
-}
-type RemoteConfig struct {
-	EndPoint  string
-	Method    string
-	Header    http.Header
-	Transport *http.RoundTripper
-}
 
 type Config struct {
 	Location          *time.Location
 	Level             LogLevel
 	OutputMode        OutputMode
 	EntrySize         int
+	ConsoleConfig     *ConsoleConfig
 	FileConfig        *FileConfig
 	RemoteConfig      *RemoteConfig
 	StandardFormatter Formatter
@@ -36,10 +26,26 @@ const (
 	HOURLYMODE
 )
 
+type ConsoleConfig struct {
+	Writer io.Writer
+}
 type FileConfig struct {
 	FileName       string
 	LogPath        string
 	FileCreateMode FileCreateMode
+}
+
+type RemoteConfig struct {
+	EndPoint  string
+	Method    string
+	Header    http.Header
+	Transport *http.RoundTripper
+}
+
+type FormatterRegistry struct {
+	ConsoleFormatter Formatter
+	FileFormmater    Formatter
+	RemoteFormatter  Formatter
 }
 
 func convertOptions(config *Config) []LogOption {

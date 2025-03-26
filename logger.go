@@ -1,6 +1,7 @@
 package log
 
 import (
+	"os"
 	"sync"
 	"time"
 )
@@ -18,6 +19,7 @@ type logger struct {
 	config        *Config
 	dynamicWriter *dynamicWriter
 	mtx           sync.RWMutex
+	entryPool     sync.Pool
 }
 
 var globalLogger *logger
@@ -60,12 +62,20 @@ func NewLogger(name string, opts ...LogOption) (*logger, error) {
 	logger := &logger{
 		name: name,
 		config: &Config{
-			Location:          time.Local,
-			Level:             INFO,
-			OutputMode:        OutputModeConsole,
+			Location:   time.Local,
+			Level:      INFO,
+			OutputMode: OutputModeConsole,
+			ConsoleConfig: &ConsoleConfig{
+				Writer: os.Stdout,
+			},
 			EntrySize:         4096,
 			StandardFormatter: defaultFormatter,
 			FormatterRegistry: &FormatterRegistry{},
+		},
+		entryPool: sync.Pool{
+			New: func() any {
+				return &logEntry{}
+			},
 		},
 	}
 
@@ -101,13 +111,12 @@ func (l *logger) logf(level LogLevel, format string, args ...any) {
 	if level < l.config.Level {
 		return
 	}
-	now := time.Now().In(l.config.Location)
-	entry := &logEntry{
-		t:      now,
-		level:  level,
-		format: format,
-		args:   args,
-	}
+	entry := l.entryPool.Get().(*logEntry)
+	entry.t = time.Now().In(l.config.Location)
+	entry.level = level
+	entry.format = format
+	entry.args = args
+
 	l.dynamicWriter.ch <- entry
 }
 

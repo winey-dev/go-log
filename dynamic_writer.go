@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -99,16 +100,18 @@ func (d *dynamicWriter) close() {
 
 type consoleWriter struct {
 	formatter Formatter
+	writer    io.Writer
 }
 
 func newConsoleWriter(l *logger) Writer {
 	return &consoleWriter{
 		formatter: l.config.FormatterRegistry.ConsoleFormatter,
+		writer:    l.config.ConsoleConfig.Writer,
 	}
 }
 
 func (c *consoleWriter) Write(t time.Time, level LogLevel, format string, args ...any) (n int, err error) {
-	return fmt.Fprint(os.Stdout, c.formatter(t, level, format, args...))
+	return fmt.Fprint(c.writer, c.formatter(t, level, format, args...))
 }
 
 type fileWriter struct {
